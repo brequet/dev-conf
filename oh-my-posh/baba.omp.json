@@ -68,7 +68,7 @@
           ],
           "leading_diamond": "<transparent,background>\ue0b0</>",
           "trailing_diamond": "\ue0b4",
-          "template": " \ueba2 {{ .FormattedMs }}\u2800 ",
+          "template": " \ueba2 {{ .FormattedMs }}\u2800",
           "properties": {
             "always_enabled": true
           },
