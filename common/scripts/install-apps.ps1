@@ -18,6 +18,7 @@ $wingetApps = @(
     @{Id = "sharkdp.bat"; Name = "bat"},
     @{Id = "sharkdp.fd"; Name = "fd"},
     @{Id = "junegunn.fzf"; Name = "fzf"},
+    @{Id = "Microsoft.VisualStudioCode"; Name = "VSCode"},
     @{Id = "ZedIndustries.Zed"; Name = "Zed"},
     @{Id = "BurntSushi.ripgrep.MSVC"; Name = "ripgrep"},
     @{Id = "Helix.Helix"; Name = "Helix"},

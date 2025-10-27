@@ -9,6 +9,7 @@ if (Test-Path $OmpTheme) {
 function Update-EnvironmentVariables {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
+Set-Alias -Name refreshenv -Value Update-EnvironmentVariables
 
 function mkcd {
     param([string]$Path)
