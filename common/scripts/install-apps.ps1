@@ -24,6 +24,7 @@ $wingetApps = @(
     @{Id = "Helix.Helix"; Name = "Helix"},
     @{Id = "DEVCOM.JetBrainsMonoNerdFont"; Name = "JetBrains Mono Nerd Font"},
     @{Id = "eza-community.eza"; Name = "eza"}
+    @{Id = "WinDirStat.WinDirStat"; Name = "WinDirStat"}
 )
 
 Write-Host "Installing common applications..." -ForegroundColor Cyan
