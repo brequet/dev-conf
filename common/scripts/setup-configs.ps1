@@ -25,6 +25,12 @@ $configMappings = @(
         Target = "$HOME\.config\oh-my-posh\baba.omp.json"
         Type = "SymbolicLink"
         CreateDir = $true
+    },
+    @{
+        Source = "$RepoRoot\common\resources"
+        Target = "$HOME\.config\resources"
+        Type = "Copy"
+        CreateDir = $true
     }
 )
 
