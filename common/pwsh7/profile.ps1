@@ -9,10 +9,34 @@ if (Test-Path $OmpTheme) {
 function Update-EnvironmentVariables {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
-Set-Alias -Name refreshenv -Value Update-EnvironmentVariables
+Set-Alias -Name uenv -Value Update-EnvironmentVariables -ErrorAction SilentlyContinue
+
+function cpwd {
+    $pwd.Path | Set-Clipboard
+}
 
 function mkcd {
     param([string]$Path)
     New-Item -ItemType Directory -Path $Path -Force | Out-Null
     Set-Location $Path
+}
+
+function tempe {
+    $tempDir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
+    mkcd $tempDir
+}
+
+function scratch {
+    $tempFile = [System.IO.Path]::GetTempFileName()
+    hx $tempFile
+}
+
+function sfx {
+    param([string]$Name)
+    $sfxPath = "$HOME\.config\resources\sfx\$Name.ogg"
+    if (Test-Path $sfxPath) {
+        Start-Process -FilePath "mpv" -ArgumentList "--really-quiet", "--no-video", $sfxPath -WindowStyle Hidden
+    } else {
+        Write-Warning "Sound effect not found at: $sfxPath"
+    }
 }

@@ -1,4 +1,7 @@
 {
+  "features": {
+    "edit_prediction_provider": "copilot"
+  },
   "agent": {
     "profiles": {
       "agent": {

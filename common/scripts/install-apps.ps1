@@ -23,8 +23,9 @@ $wingetApps = @(
     @{Id = "BurntSushi.ripgrep.MSVC"; Name = "ripgrep"},
     @{Id = "Helix.Helix"; Name = "Helix"},
     @{Id = "DEVCOM.JetBrainsMonoNerdFont"; Name = "JetBrains Mono Nerd Font"},
-    @{Id = "eza-community.eza"; Name = "eza"}
-    @{Id = "WinDirStat.WinDirStat"; Name = "WinDirStat"}
+    @{Id = "eza-community.eza"; Name = "eza"},
+    @{Id = "WinDirStat.WinDirStat"; Name = "WinDirStat"},
+    @{Id = "mpv.net"; Name = "mpv"}
 )
 
 Write-Host "Installing common applications..." -ForegroundColor Cyan
