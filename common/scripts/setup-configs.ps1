@@ -53,7 +53,7 @@ foreach ($mapping in $configMappings) {
         New-Item -ItemType SymbolicLink -Path $mapping.Target -Target $mapping.Source -Force | Out-Null
     } else {
         Write-Host "  [COPY] $($mapping.Source) -> $($mapping.Target)" -ForegroundColor Green
-        Copy-Item -Path $mapping.Source -Destination $mapping.Target -Force
+        Copy-Item -Path $mapping.Source -Destination $mapping.Target -Force -Recurse
     }
 }
 

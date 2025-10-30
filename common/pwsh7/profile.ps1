@@ -40,3 +40,11 @@ function sfx {
         Write-Warning "Sound effect not found at: $sfxPath"
     }
 }
+
+function prettypath {
+    $env:Path -split ';' | ForEach-Object { Write-Host $_ }
+}
+
+function catbin {
+    bat "$(get-command refreshenv | Select -ExpandProperty "Source")"
+}
