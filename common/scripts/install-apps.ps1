@@ -39,6 +39,16 @@ foreach ($app in $wingetApps) {
     }
 }
 
+# Special case for mpv as it does not put itself available in the path
+$mpvPath = "$env:LOCALAPPDATA\Programs\mpv.net"
+if (Test-Path $mpvPath) {
+    $currentUserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($currentUserPath -notlike "*$mpvPath*") {
+        Write-Host "  [PATH] Adding mpv.net to User PATH" -ForegroundColor Green
+        [Environment]::SetEnvironmentVariable("Path", "$currentUserPath;$mpvPath", "User")
+    }
+}
+
 Write-Host "`nRefreshing environment PATH..." -ForegroundColor Cyan
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 

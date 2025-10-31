@@ -31,12 +31,14 @@ function scratch {
     hx $tempFile
 }
 
+function mpv { mpvnet.exe $args }
+
 function sfx {
     param([string]$Name)
     # Possible values: bad bell dading good ringaling
     $sfxPath = "$HOME\.config\resources\sfx\$Name.ogg"
     if (Test-Path $sfxPath) {
-        Start-Process -FilePath "mpv" -ArgumentList "--really-quiet", "--no-video", $sfxPath -WindowStyle Hidden
+        Start-Process -FilePath "mpvnet.exe" -ArgumentList "--really-quiet", "--no-video", $sfxPath -WindowStyle Hidden
     } else {
         Write-Warning "Sound effect not found at: $sfxPath"
     }
