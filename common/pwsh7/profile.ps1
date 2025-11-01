@@ -110,3 +110,5 @@ function timer {
         notify "Timer completed: $Duration"
         sfx "ringaling"
 }
+
+set-alias mvn "C:\Program Files\JetBrains\IntelliJ IDEA 2025.2.4\plugins\maven\lib\maven3\bin\mvn.cmd"
