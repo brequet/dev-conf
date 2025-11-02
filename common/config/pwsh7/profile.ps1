@@ -63,8 +63,6 @@ function notify {
     $notification.BalloonTipTitle = $Title
     $notification.Visible = $True
     $notification.ShowBalloonTip(5000)
-    Start-Sleep -Seconds 10
-    $notification.Dispose()
 }
 
 function timer {
