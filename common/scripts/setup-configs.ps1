@@ -20,25 +20,25 @@ $script:RepoRoot = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent
 # Configuration file mappings
 $script:ConfigMappings = @(
     @{
-        Source = "$script:RepoRoot\common\pwsh7\profile.ps1"
+        Source = "$script:RepoRoot\common\config\pwsh7\profile.ps1"
         Target = "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
         Type = "SymbolicLink"
         CreateDir = $true
     }
     @{
-        Source = "$script:RepoRoot\common\zed\settings.json"
+        Source = "$script:RepoRoot\common\config\zed\settings.json"
         Target = "$env:APPDATA\Zed\settings.json"
         Type = "Copy"
         CreateDir = $true
     }
     @{
-        Source = "$script:RepoRoot\common\oh-my-posh\baba.omp.json"
-        Target = "$HOME\.config\oh-my-posh\baba.omp.json"
+        Source = "$script:RepoRoot\common\config\starship.toml"
+        Target = "$HOME\.config\starship.toml"
         Type = "SymbolicLink"
         CreateDir = $true
     }
     @{
-        Source = "$script:RepoRoot\common\resources"
+        Source = "$script:RepoRoot\common\config\resources"
         Target = "$HOME\.config\resources"
         Type = "Copy"
         CreateDir = $true

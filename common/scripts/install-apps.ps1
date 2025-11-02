@@ -30,6 +30,7 @@ $script:WingetApps = @(
     @{Id = "eza-community.eza"; Name = "eza"}
     @{Id = "WinDirStat.WinDirStat"; Name = "WinDirStat"}
     @{Id = "mpv.net"; Name = "mpv"}
+    @{Id = "Starship.Starship"; Name = "Starship Prompt"}
 )
 
 # Applications to install from GitHub releases
