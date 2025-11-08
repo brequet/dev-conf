@@ -43,6 +43,12 @@ $script:ConfigMappings = @(
         Type = "Copy"
         CreateDir = $true
     }
+    @{
+        Source = "$script:RepoRoot\common\config\.prettierrc"
+        Target = "$HOME\.prettierrc"
+        Type = "Copy"
+        CreateDir = $false
+    }
 )
 
 # Environment variables to set
