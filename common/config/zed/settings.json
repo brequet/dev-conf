@@ -56,5 +56,15 @@
     "mode": "dark",
     "light": "One Light",
     "dark": "One Dark Pro"
+  },
+  "auto_install_extension": {
+    // bat $env:LOCALAPPDATA\zed\extensions\index.json | rg "id" -w
+    "html": true,
+    "material-icon-theme": true,
+    "one-dark-pro": true,
+    "powershell": true,
+    "sql": true,
+    "svelte": true,
+    "toml": true
   }
 }
