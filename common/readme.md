@@ -24,7 +24,6 @@ Also make it so the install script can be run on itself: upgrade thingy if possi
 ## Configuration
 
 - Terminal:
-  - Oh-My-Posh -> https://ohmyposh.dev/docs/installation/prompt
   - Jetbrain Mono -> find a way to script pwsh7 to use it
 - Use symlinks to link to pwsh7/profile.ps1
 - Zed:

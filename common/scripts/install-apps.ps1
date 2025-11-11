@@ -18,7 +18,6 @@ Import-Module "$PSScriptRoot\..\lib\CommonFunctions.psm1" -Force
 $script:WingetApps = @(
     @{Id = "Microsoft.WindowsTerminal"; Name = "Windows Terminal"}
     @{Id = "Microsoft.PowerShell"; Name = "PowerShell 7"}
-    @{Id = "JanDeDobbeleer.OhMyPosh"; Name = "OhMyPosh"}
     @{Id = "sharkdp.bat"; Name = "bat"}
     @{Id = "sharkdp.fd"; Name = "fd"}
     @{Id = "junegunn.fzf"; Name = "fzf"}
