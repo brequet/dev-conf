@@ -103,4 +103,19 @@ function timer {
         sfx "ringaling"
 }
 
-set-alias mvn "C:\Program Files\JetBrains\IntelliJ IDEA 2025.2.4\plugins\maven\lib\maven3\bin\mvn.cmd"
+function head {
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$FilePath,
+
+        [Parameter(Position=1)]
+        [int]$Lines = 10
+    )
+
+    if (-not (Test-Path $FilePath)) {
+        Write-Warning "File not found: $FilePath"
+        return
+    }
+
+    bat --line-range 1:$Lines $FilePath
+}
