@@ -119,3 +119,11 @@ function head {
 
     bat --line-range 1:$Lines $FilePath
 }
+
+function json {
+    process {
+        if ($null -ne $_) {
+            $_ | fx . | bat -l json
+        }
+    }
+}

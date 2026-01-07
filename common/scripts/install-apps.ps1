@@ -30,6 +30,7 @@ $script:WingetApps = @(
     @{Id = "WinDirStat.WinDirStat"; Name = "WinDirStat"}
     @{Id = "mpv.net"; Name = "mpv"}
     @{Id = "Starship.Starship"; Name = "Starship Prompt"}
+    @{Id = "GitHub.Copilot"; Name = "GitHub Copilot CLI"}
 )
 
 # Applications to install from GitHub releases
