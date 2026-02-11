@@ -127,3 +127,14 @@ function json {
         }
     }
 }
+
+function gnew {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Name
+    )
+
+    git checkout main
+    git pull origin main
+    git checkout -b $Name
+}
