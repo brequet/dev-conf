@@ -1,0 +1,70 @@
+{
+  "buffer_font_weight": 400.0,
+  "features": {
+    "edit_prediction_provider": "copilot"
+  },
+  "agent": {
+    "profiles": {
+      "agent": {
+        "name": "agent",
+        "tools": {
+          "thinking": true,
+          "terminal": true,
+          "read_file": true,
+          "project_notifications": true,
+          "now": true,
+          "open": true,
+          "move_path": true,
+          "list_directory": true,
+          "grep": true,
+          "find_path": true,
+          "fetch": true,
+          "edit_file": true,
+          "diagnostics": true,
+          "delete_path": true,
+          "create_directory": true,
+          "copy_path": true
+        },
+        "enable_all_context_servers": false,
+        "context_servers": {}
+      }
+    },
+    "default_profile": "agent",
+    "dock": "left",
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "claude-sonnet-4.5"
+    },
+    "model_parameters": []
+  },
+  "git_panel": {
+    "dock": "right"
+  },
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "terminal": {
+    "copy_on_select": false,
+    "font_family": "JetBrainsMono Nerd Font"
+  },
+  "project_panel": {
+    "dock": "right"
+  },
+  "base_keymap": "JetBrains",
+  "icon_theme": "Material Icon Theme",
+  "ui_font_size": 16.0,
+  "buffer_font_size": 14.0,
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "One Dark Pro"
+  },
+  "auto_install_extensions": {
+    // bat $env:LOCALAPPDATA\zed\extensions\index.json | rg "id" -w
+    "html": true,
+    "material-icon-theme": true,
+    "one-dark-pro": true,
+    "powershell": true,
+    "sql": true,
+    "svelte": true,
+    "toml": true
+  }
+}

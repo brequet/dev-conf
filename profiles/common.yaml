@@ -1,0 +1,58 @@
+profile: common
+
+packages:
+  - winget: Microsoft.WindowsTerminal
+  - winget: Microsoft.PowerShell
+  - winget: Starship.Starship
+  - winget: GitHub.Copilot
+  - winget: DEVCOM.JetBrainsMonoNerdFont
+  - winget: sharkdp.bat
+  - winget: sharkdp.fd
+  - winget: junegunn.fzf
+  - winget: BurntSushi.ripgrep.MSVC
+  - winget: eza-community.eza
+  - winget: Microsoft.VisualStudioCode
+  - winget: ZedIndustries.Zed
+  - winget: Helix.Helix
+  - winget: mpv.net
+  - winget: WinDirStat.WinDirStat
+
+  - github:
+      repo: brequet/flatten
+      asset: flatten-windows-x86_64.exe
+      as: flatten.exe
+      to: "{{bin_dir}}"
+
+configs:
+  - src: config/pwsh7/profile.ps1
+    dest: "{{docs}}/PowerShell/Microsoft.PowerShell_profile.ps1"
+    method: symlink
+
+  - src: config/starship.toml
+    dest: "{{home}}/.config/starship.toml"
+    method: symlink
+
+  - src: config/zed/settings.json
+    dest: "{{appdata}}/Zed/settings.json"
+    method: copy
+    mkdir: true
+
+  - src: config/.prettierrc
+    dest: "{{home}}/.prettierrc"
+    method: copy
+
+  - src: config/resources/
+    dest: "{{home}}/.config/resources/"
+    method: copy
+
+env:
+  ZED_ALLOW_EMULATED_GPU: "1"
+
+path:
+  - "{{bin_dir}}"
+  - "{{localappdata}}/Programs/mpv.net"
+
+actions:
+  - name: Set system language
+    shell: Set-WinUserLanguageList -LanguageList {{language}} -Force
+    admin: true

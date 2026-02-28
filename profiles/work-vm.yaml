@@ -1,0 +1,9 @@
+profile: work-vm
+extends: common
+
+env:
+  MAVEN_OPTS: "-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8"
+
+packages:
+  - remove: mpv.net
+  - remove: WinDirStat.WinDirStat

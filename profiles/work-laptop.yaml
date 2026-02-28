@@ -1,0 +1,20 @@
+profile: work-laptop
+extends: common
+
+packages:
+  - winget: Microsoft.AzureCLI
+
+env:
+  ZED_ALLOW_EMULATED_GPU: "1"
+
+actions:
+  - name: Map network drive
+    shell: |
+      $driveLetter = "S"
+      $networkPath = "\\FRL205143\shared"
+      if (-not (Test-Path "${driveLetter}:")) {
+        $securePassword = ConvertTo-SecureString -String $env:WIN_PASSWORD -AsPlainText -Force
+        $credential = New-Object PSCredential($env:WIN_USER, $securePassword)
+        New-PSDrive -Name $driveLetter -PSProvider FileSystem -Root $networkPath -Credential $credential -Persist
+      }
+    admin: true

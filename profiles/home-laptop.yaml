@@ -1,0 +1,23 @@
+profile: home-laptop
+extends: common
+
+packages:
+  - winget: Valve.Steam
+  - scoop: extras/obs-studio
+
+  - remove: WinDirStat.WinDirStat
+
+configs:
+  - src: home-laptop/pwsh7/aliases.ps1
+    dest: "{{docs}}/PowerShell/home-aliases.ps1"
+    method: symlink
+
+actions:
+  - name: Source home aliases in profile
+    shell: |
+      $target = "{{docs}}/PowerShell/home-aliases.ps1"
+      $profile = "{{docs}}/PowerShell/Microsoft.PowerShell_profile.ps1"
+      $line = '. "' + $target + '"'
+      if ((Get-Content $profile -Raw) -notmatch [regex]::Escape($line)) {
+        Add-Content $profile "`n$line"
+      }
