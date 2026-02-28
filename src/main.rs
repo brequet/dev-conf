@@ -57,7 +57,7 @@ async fn main() -> Result<()> {
         None => {
             // Default: launch TUI
             tracing::info!("Launching TUI");
-            println!("TUI not yet implemented. Use a subcommand (e.g., `devconf status`).");
+            engine::run_tui_mode().await?;
         }
     }
 

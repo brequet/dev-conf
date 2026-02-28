@@ -11,6 +11,7 @@ use crate::config::schema::{
     Package, PackageEntry, PackageSource, ProfileFile, ResolvedProfile, RootConfig,
 };
 use crate::config::vars;
+use crate::system::shell;
 
 /// Load root config from devconf.yaml
 fn load_root_config() -> Result<RootConfig> {
@@ -256,13 +257,33 @@ fn save_active_profile(name: &str) -> Result<()> {
     Ok(())
 }
 
+/// Launch the interactive TUI mode
+pub async fn run_tui_mode() -> Result<()> {
+    let available_profiles = list_profiles()?;
+
+    // Try to determine active profile, default to first available
+    let profile_name = match determine_profile(&None) {
+        Ok(name) => name,
+        Err(_) => {
+            if available_profiles.is_empty() {
+                return Err(eyre!(
+                    "No profiles found. Create profile YAML files in the profiles/ directory."
+                ));
+            }
+            available_profiles[0].clone()
+        }
+    };
+
+    let root_config = load_root_config()?;
+    let profile = resolve_profile(&profile_name, &root_config)?;
+
+    crate::tui::run_tui(profile, available_profiles).await
+}
+
 // === Action execution ===
 
-use crate::config::schema::ResolvedProfile as ResolvedProfileForActions;
-use crate::system::shell;
-
 /// Execute all actions defined in a profile
-async fn run_actions(profile: &ResolvedProfileForActions) -> Result<()> {
+async fn run_actions(profile: &ResolvedProfile) -> Result<()> {
     if profile.actions.is_empty() {
         return Ok(());
     }
