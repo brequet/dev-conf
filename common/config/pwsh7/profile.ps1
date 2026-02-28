@@ -1,52 +1,65 @@
 Invoke-Expression (&starship init powershell)
 
-function Update-EnvironmentVariables {
+function Update-EnvironmentVariables
+{
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 }
 Set-Alias -Name uenv -Value Update-EnvironmentVariables -ErrorAction SilentlyContinue
 
-function cpwd {
+function cpwd
+{
     $pwd.Path | Set-Clipboard
 }
 
-function mkcd {
+function mkcd
+{
     param([string]$Path)
     New-Item -ItemType Directory -Path $Path -Force | Out-Null
     Set-Location $Path
 }
 
-function tempe {
+function tempe
+{
     $tempDir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
     mkcd $tempDir
 }
 
-function scratch {
+function scratch
+{
     $tempFile = [System.IO.Path]::GetTempFileName()
     hx $tempFile
 }
 
-function mpv { mpvnet.exe $args }
+function mpv
+{ mpvnet.exe $args 
+}
 
-function sfx {
+function sfx
+{
     param([string]$Name)
     # Possible values: bad bell dading good ringaling
     $sfxPath = "$HOME\.config\resources\sfx\$Name.ogg"
-    if (Test-Path $sfxPath) {
+    if (Test-Path $sfxPath)
+    {
         Start-Process -FilePath "mpvnet.exe" -ArgumentList "--really-quiet", "--no-video", $sfxPath -WindowStyle Hidden
-    } else {
+    } else
+    {
         Write-Warning "Sound effect not found at: $sfxPath"
     }
 }
 
-function prettypath {
+function prettypath
+{
     $env:Path -split ';' | ForEach-Object { Write-Host $_ }
 }
 
-function catbin {
+function catbin
+{
     bat "$(get-command refreshenv | Select -ExpandProperty "Source")"
 }
 
-function notify {
+function notify
+{
     param(
         [Parameter(Mandatory=$true, Position=0)]
         [string]$Message,
@@ -65,45 +78,53 @@ function notify {
     $notification.ShowBalloonTip(5000)
 }
 
-function timer {
+function timer
+{
     param([string]$Duration)
 
-        if ([string]::IsNullOrWhiteSpace($Duration)) {
-            Write-Warning "Usage: timer <duration> (e.g., timer 10s, timer 5m, timer 1m30s)"
-            return
-        }
+    if ([string]::IsNullOrWhiteSpace($Duration))
+    {
+        Write-Warning "Usage: timer <duration> (e.g., timer 10s, timer 5m, timer 1m30s)"
+        return
+    }
 
-        # Parse the duration string
-        $totalSeconds = 0
+    # Parse the duration string
+    $totalSeconds = 0
 
-        # Match patterns like "5m", "10s", "1m30s", "2h5m30s"
-        if ($Duration -match '(\d+)h') {
-            $totalSeconds += [int]$Matches[1] * 3600
-        }
-        if ($Duration -match '(\d+)m') {
-            $totalSeconds += [int]$Matches[1] * 60
-        }
-        if ($Duration -match '(\d+)s') {
-            $totalSeconds += [int]$Matches[1]
-        }
+    # Match patterns like "5m", "10s", "1m30s", "2h5m30s"
+    if ($Duration -match '(\d+)h')
+    {
+        $totalSeconds += [int]$Matches[1] * 3600
+    }
+    if ($Duration -match '(\d+)m')
+    {
+        $totalSeconds += [int]$Matches[1] * 60
+    }
+    if ($Duration -match '(\d+)s')
+    {
+        $totalSeconds += [int]$Matches[1]
+    }
 
-        # If no unit specified, treat as seconds
-        if ($Duration -match '^\d+$') {
-            $totalSeconds = [int]$Duration
-        }
+    # If no unit specified, treat as seconds
+    if ($Duration -match '^\d+$')
+    {
+        $totalSeconds = [int]$Duration
+    }
 
-        if ($totalSeconds -le 0) {
-            Write-Warning "Invalid duration: $Duration"
-            return
-        }
+    if ($totalSeconds -le 0)
+    {
+        Write-Warning "Invalid duration: $Duration"
+        return
+    }
 
-        Write-Host "Timer started for $totalSeconds seconds ($Duration)"
-        Start-Sleep -Seconds $totalSeconds
-        notify "Timer completed: $Duration"
-        sfx "ringaling"
+    Write-Host "Timer started for $totalSeconds seconds ($Duration)"
+    Start-Sleep -Seconds $totalSeconds
+    notify "Timer completed: $Duration"
+    sfx "ringaling"
 }
 
-function head {
+function head
+{
     param(
         [Parameter(Mandatory=$true, Position=0)]
         [string]$FilePath,
@@ -112,7 +133,8 @@ function head {
         [int]$Lines = 10
     )
 
-    if (-not (Test-Path $FilePath)) {
+    if (-not (Test-Path $FilePath))
+    {
         Write-Warning "File not found: $FilePath"
         return
     }
@@ -120,15 +142,19 @@ function head {
     bat --line-range 1:$Lines $FilePath
 }
 
-function json {
-    process {
-        if ($null -ne $_) {
+function json
+{
+    process
+    {
+        if ($null -ne $_)
+        {
             $_ | fx . | bat -l json
         }
     }
 }
 
-function gnew {
+function gnew
+{
     param(
         [Parameter(Mandatory = $true)]
         [string] $Name

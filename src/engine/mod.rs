@@ -256,6 +256,33 @@ fn save_active_profile(name: &str) -> Result<()> {
     Ok(())
 }
 
+// === Action execution ===
+
+use crate::config::schema::ResolvedProfile as ResolvedProfileForActions;
+use crate::system::shell;
+
+/// Execute all actions defined in a profile
+async fn run_actions(profile: &ResolvedProfileForActions) -> Result<()> {
+    if profile.actions.is_empty() {
+        return Ok(());
+    }
+
+    println!("\nRunning actions...");
+    for action in &profile.actions {
+        println!("  Running: {}", action.name);
+        if action.admin {
+            println!("    (requires admin privileges)");
+        }
+        let output = shell::run_powershell(&action.shell).await?;
+        if output.success {
+            println!("    Done.");
+        } else {
+            println!("    Failed: {}", output.stderr.trim());
+        }
+    }
+    Ok(())
+}
+
 // === Command handlers ===
 
 pub async fn run_install(args: InstallArgs) -> Result<()> {
@@ -289,6 +316,9 @@ pub async fn run_install(args: InstallArgs) -> Result<()> {
 
     // Deploy configs
     config_deploy::deploy_configs(&profile).await?;
+
+    // Run actions
+    run_actions(&profile).await?;
 
     println!("\nInstallation complete.");
     Ok(())
@@ -329,6 +359,10 @@ pub async fn run_sync(args: SyncArgs) -> Result<()> {
 
     println!("Syncing configs for profile: {}", profile.name);
     config_deploy::deploy_configs(&profile).await?;
+
+    // Run actions
+    run_actions(&profile).await?;
+
     println!("Sync complete.");
     Ok(())
 }
