@@ -1,0 +1,20 @@
+[package]
+name = "devconf"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = "0.1.89"
+clap = { version = "4.5.60", features = ["derive"] }
+color-eyre = "0.6.5"
+crossterm = "0.29.0"
+dirs = "6.0.0"
+ratatui = "0.30.0"
+reqwest = { version = "0.13.2", features = ["json"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+serde_yaml = "0.9.34"
+sha2 = "0.10.9"
+tokio = { version = "1.49.0", features = ["full"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
