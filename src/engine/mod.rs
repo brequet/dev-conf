@@ -11,6 +11,7 @@ use crate::config::schema::{
     Package, PackageEntry, PackageSource, ProfileFile, ResolvedProfile, RootConfig,
 };
 use crate::config::vars;
+use crate::context;
 use crate::system::shell;
 
 /// Load root config from devconf.yaml
@@ -280,6 +281,103 @@ pub async fn run_tui_mode() -> Result<()> {
     crate::tui::run_tui(profile, available_profiles).await
 }
 
+/// Plain-text status output (used when --no-tui or piping)
+pub async fn run_status_plain() -> Result<()> {
+    let profile_name = match determine_profile(&None) {
+        Ok(name) => name,
+        Err(_) => {
+            let profiles = list_profiles()?;
+            if profiles.is_empty() {
+                return Err(eyre!(
+                    "No profiles found. Create profile YAML files in the profiles/ directory."
+                ));
+            }
+            profiles[0].clone()
+        }
+    };
+
+    let root_config = load_root_config()?;
+    let profile = resolve_profile(&profile_name, &root_config)?;
+
+    println!("Profile: {}", profile.name);
+    println!("{:-<60}", "");
+
+    for pkg in &profile.packages {
+        let source_name = match &pkg.source {
+            PackageSource::Winget => "winget",
+            PackageSource::Scoop => "scoop",
+            PackageSource::Choco => "choco",
+            PackageSource::GitHub(_) => "github",
+        };
+        let status = check::check_package(pkg).await?;
+        let status_symbol = match &status {
+            crate::config::schema::PackageStatus::Installed { .. } => "OK",
+            crate::config::schema::PackageStatus::Outdated { .. } => "UP",
+            crate::config::schema::PackageStatus::NotInstalled => "XX",
+            crate::config::schema::PackageStatus::Unknown => "??",
+        };
+        println!(
+            "  [{}] {:8} {:<30} {}",
+            status_symbol, source_name, pkg.id, status
+        );
+    }
+
+    println!("{:-<60}", "");
+    println!("Configs: {}", profile.configs.len());
+    println!("Env vars: {}", profile.env.len());
+    println!("PATH entries: {}", profile.path.len());
+    println!("Actions: {}", profile.actions.len());
+
+    Ok(())
+}
+
+// === Retry helper ===
+
+/// Run an async operation with retries and exponential backoff
+async fn with_retry<F, Fut>(label: &str, f: F) -> Result<()>
+where
+    F: Fn() -> Fut,
+    Fut: std::future::Future<Output = Result<()>>,
+{
+    let max_retries = context::get().max_retries;
+    let mut attempt = 0;
+
+    loop {
+        match f().await {
+            Ok(()) => return Ok(()),
+            Err(e) => {
+                attempt += 1;
+                if attempt > max_retries {
+                    tracing::error!(
+                        "Failed {} after {} attempts: {}",
+                        label,
+                        attempt,
+                        e
+                    );
+                    return Err(e);
+                }
+                let delay = std::time::Duration::from_secs(2u64.pow(attempt));
+                tracing::warn!(
+                    "Attempt {}/{} failed for {}: {}. Retrying in {:?}...",
+                    attempt,
+                    max_retries + 1,
+                    label,
+                    e,
+                    delay
+                );
+                println!(
+                    "  Retry {}/{} for {} in {:?}...",
+                    attempt,
+                    max_retries + 1,
+                    label,
+                    delay
+                );
+                tokio::time::sleep(delay).await;
+            }
+        }
+    }
+}
+
 // === Action execution ===
 
 /// Execute all actions defined in a profile
@@ -288,8 +386,14 @@ async fn run_actions(profile: &ResolvedProfile) -> Result<()> {
         return Ok(());
     }
 
+    let dry_run = context::is_dry_run();
+
     println!("\nRunning actions...");
     for action in &profile.actions {
+        if dry_run {
+            println!("  [dry-run] Would run: {} ({})", action.name, action.shell);
+            continue;
+        }
         println!("  Running: {}", action.name);
         if action.admin {
             println!("    (requires admin privileges)");
@@ -310,6 +414,7 @@ pub async fn run_install(args: InstallArgs) -> Result<()> {
     let profile_name = determine_profile(&args.profile)?;
     let root_config = load_root_config()?;
     let profile = resolve_profile(&profile_name, &root_config)?;
+    let dry_run = context::is_dry_run();
 
     println!("Installing profile: {}", profile.name);
     println!("Packages: {}", profile.packages.len());
@@ -318,19 +423,49 @@ pub async fn run_install(args: InstallArgs) -> Result<()> {
         let status = check::check_package(pkg).await?;
         match status {
             crate::config::schema::PackageStatus::NotInstalled => {
-                println!("  Installing {}...", pkg.id);
-                install::install_package(pkg).await?;
+                if dry_run {
+                    println!("  [dry-run] Would install {}", pkg.id);
+                } else {
+                    println!("  Installing {}...", pkg.id);
+                    let pkg_clone = pkg.clone();
+                    with_retry(&format!("install {}", pkg.id), || {
+                        let p = pkg_clone.clone();
+                        async move { install::install_package(&p).await }
+                    })
+                    .await?;
+                }
             }
             crate::config::schema::PackageStatus::Outdated { current, available } => {
-                println!("  Upgrading {} ({} -> {})...", pkg.id, current, available);
-                install::upgrade_package(pkg).await?;
+                if dry_run {
+                    println!(
+                        "  [dry-run] Would upgrade {} ({} -> {})",
+                        pkg.id, current, available
+                    );
+                } else {
+                    println!("  Upgrading {} ({} -> {})...", pkg.id, current, available);
+                    let pkg_clone = pkg.clone();
+                    with_retry(&format!("upgrade {}", pkg.id), || {
+                        let p = pkg_clone.clone();
+                        async move { install::upgrade_package(&p).await }
+                    })
+                    .await?;
+                }
             }
             crate::config::schema::PackageStatus::Installed { version } => {
                 println!("  {} already installed ({})", pkg.id, version);
             }
             crate::config::schema::PackageStatus::Unknown => {
-                println!("  {} status unknown, attempting install...", pkg.id);
-                install::install_package(pkg).await?;
+                if dry_run {
+                    println!("  [dry-run] Would install {} (status unknown)", pkg.id);
+                } else {
+                    println!("  {} status unknown, attempting install...", pkg.id);
+                    let pkg_clone = pkg.clone();
+                    with_retry(&format!("install {}", pkg.id), || {
+                        let p = pkg_clone.clone();
+                        async move { install::install_package(&p).await }
+                    })
+                    .await?;
+                }
             }
         }
     }
@@ -367,7 +502,10 @@ pub async fn run_status(args: StatusArgs) -> Result<()> {
             crate::config::schema::PackageStatus::NotInstalled => "XX",
             crate::config::schema::PackageStatus::Unknown => "??",
         };
-        println!("  [{}] {:8} {:<30} {}", status_symbol, source_name, pkg.id, status);
+        println!(
+            "  [{}] {:8} {:<30} {}",
+            status_symbol, source_name, pkg.id, status
+        );
     }
 
     Ok(())
@@ -392,14 +530,27 @@ pub async fn run_upgrade(args: UpgradeArgs) -> Result<()> {
     let profile_name = determine_profile(&args.profile)?;
     let root_config = load_root_config()?;
     let profile = resolve_profile(&profile_name, &root_config)?;
+    let dry_run = context::is_dry_run();
 
     println!("Checking for upgrades in profile: {}", profile.name);
 
     for pkg in &profile.packages {
         let status = check::check_package(pkg).await?;
         if let crate::config::schema::PackageStatus::Outdated { current, available } = status {
-            println!("  Upgrading {} ({} -> {})...", pkg.id, current, available);
-            install::upgrade_package(pkg).await?;
+            if dry_run {
+                println!(
+                    "  [dry-run] Would upgrade {} ({} -> {})",
+                    pkg.id, current, available
+                );
+            } else {
+                println!("  Upgrading {} ({} -> {})...", pkg.id, current, available);
+                let pkg_clone = pkg.clone();
+                with_retry(&format!("upgrade {}", pkg.id), || {
+                    let p = pkg_clone.clone();
+                    async move { install::upgrade_package(&p).await }
+                })
+                .await?;
+            }
         }
     }
 

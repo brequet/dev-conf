@@ -1,5 +1,6 @@
 mod cli;
 mod config;
+mod context;
 mod engine;
 mod providers;
 mod system;
@@ -9,19 +10,50 @@ use clap::Parser;
 use color_eyre::Result;
 
 use crate::cli::{Cli, Command};
+use crate::context::RunContext;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     color_eyre::install()?;
 
+    let cli = Cli::parse();
+
+    // Initialize global runtime context from CLI flags
+    context::init(RunContext {
+        dry_run: cli.dry_run,
+        no_tui: cli.no_tui,
+        verbose: cli.verbose,
+        parallel: cli.parallel,
+        max_retries: 2,
+    });
+
+    // Set up tracing: file appender (TUI owns stdout, logs go to file)
+    let log_dir = dirs::config_dir()
+        .unwrap_or_else(|| std::path::PathBuf::from("."))
+        .join("devconf")
+        .join("logs");
+    std::fs::create_dir_all(&log_dir)?;
+
+    let file_appender = tracing_appender::rolling::daily(&log_dir, "devconf.log");
+
+    let log_level = if cli.verbose {
+        tracing::Level::DEBUG
+    } else {
+        tracing::Level::INFO
+    };
+
     tracing_subscriber::fmt()
+        .with_writer(file_appender)
         .with_env_filter(
             tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive(tracing::Level::INFO.into()),
+                .add_directive(log_level.into()),
         )
+        .with_ansi(false)
         .init();
 
-    let cli = Cli::parse();
+    if cli.dry_run {
+        println!("[dry-run] Dry-run mode enabled -- no changes will be made");
+    }
 
     match cli.command {
         Some(cmd) => match cmd {
@@ -55,9 +87,14 @@ async fn main() -> Result<()> {
             }
         },
         None => {
-            // Default: launch TUI
-            tracing::info!("Launching TUI");
-            engine::run_tui_mode().await?;
+            // Default: launch TUI (unless --no-tui)
+            if cli.no_tui {
+                tracing::info!("Running default status in plain text mode (--no-tui)");
+                engine::run_status_plain().await?;
+            } else {
+                tracing::info!("Launching TUI");
+                engine::run_tui_mode().await?;
+            }
         }
     }
 

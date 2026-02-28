@@ -2,6 +2,7 @@ use color_eyre::Result;
 use std::path::Path;
 
 use crate::config::schema::{ConfigMethod, ResolvedProfile};
+use crate::context;
 
 /// Deploy all config files for a profile
 pub async fn deploy_configs(profile: &ResolvedProfile) -> Result<()> {
@@ -25,6 +26,20 @@ pub async fn deploy_configs(profile: &ResolvedProfile) -> Result<()> {
 async fn deploy_single_config(cfg: &crate::config::schema::ConfigEntry) -> Result<()> {
     let src = Path::new(&cfg.src);
     let dest = Path::new(&cfg.dest);
+
+    if context::is_dry_run() {
+        let method = match cfg.method {
+            ConfigMethod::Symlink => "symlink",
+            ConfigMethod::Copy => "copy",
+        };
+        println!(
+            "  [dry-run] Would {} {} -> {}",
+            method,
+            src.display(),
+            dest.display()
+        );
+        return Ok(());
+    }
 
     // Create parent directories if mkdir is set
     if cfg.mkdir {
@@ -70,7 +85,11 @@ fn deploy_symlink(src: &Path, dest: &Path) -> Result<()> {
     }
 
     let abs_src = std::fs::canonicalize(src)?;
-    println!("  Creating symlink: {} -> {}", dest.display(), abs_src.display());
+    println!(
+        "  Creating symlink: {} -> {}",
+        dest.display(),
+        abs_src.display()
+    );
 
     #[cfg(windows)]
     {
@@ -146,9 +165,17 @@ fn file_hash(path: &Path) -> Result<String> {
 }
 
 async fn set_env_var(key: &str, value: &str) -> Result<()> {
+    if context::is_dry_run() {
+        println!("  [dry-run] Would set env {} = {}", key, value);
+        return Ok(());
+    }
     crate::system::env::set_user_env_var(key, value).await
 }
 
 async fn add_to_path(entry: &str) -> Result<()> {
+    if context::is_dry_run() {
+        println!("  [dry-run] Would add {} to PATH", entry);
+        return Ok(());
+    }
     crate::system::path::add_to_user_path(entry).await
 }
