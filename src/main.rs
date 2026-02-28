@@ -83,7 +83,12 @@ async fn main() -> Result<()> {
             }
             Command::Export => {
                 tracing::info!("Export command invoked");
-                println!("Export not yet implemented");
+                engine::export::run_export().await?;
+            }
+            Command::Completions { shell } => {
+                tracing::info!("Completions command invoked for {:?}", shell);
+                let mut cmd = <Cli as clap::CommandFactory>::command();
+                clap_complete::generate(shell, &mut cmd, "devconf", &mut std::io::stdout());
             }
         },
         None => {

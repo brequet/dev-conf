@@ -1,5 +1,6 @@
 pub mod check;
 pub mod config_deploy;
+pub mod export;
 pub mod install;
 
 use color_eyre::{Result, eyre::eyre};

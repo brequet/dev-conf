@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use clap_complete::Shell;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -43,6 +44,12 @@ pub enum Command {
     Profile(ProfileArgs),
     /// Scan current machine and generate a profile YAML
     Export,
+    /// Generate shell completions
+    Completions {
+        /// Shell to generate completions for
+        #[arg(value_enum, default_value = "powershell")]
+        shell: Shell,
+    },
 }
 
 #[derive(clap::Args, Debug)]
