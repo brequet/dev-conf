@@ -31,7 +31,7 @@ function scratch
 }
 
 function mpv
-{ mpvnet.exe $args 
+{ mpvnet.exe $args
 }
 
 function sfx
@@ -166,3 +166,10 @@ function nb
 }
 
 Set-Alias -Name oc -Value opencode
+
+# find & print
+function fp
+{
+    param($n)
+    fd $n | ForEach-Object { bat $_ }
+}

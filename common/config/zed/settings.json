@@ -1,8 +1,8 @@
 {
-  "buffer_font_weight": 400.0,
-  "features": {
-    "edit_prediction_provider": "copilot"
+  "edit_predictions": {
+    "provider": "copilot",
   },
+  "buffer_font_weight": 400.0,
   "agent": {
     "profiles": {
       "agent": {
@@ -23,30 +23,30 @@
           "diagnostics": true,
           "delete_path": true,
           "create_directory": true,
-          "copy_path": true
+          "copy_path": true,
         },
         "enable_all_context_servers": false,
-        "context_servers": {}
-      }
+        "context_servers": {},
+      },
     },
     "default_profile": "agent",
     "dock": "left",
     "default_model": {
       "provider": "copilot_chat",
-      "model": "claude-sonnet-4.5"
+      "model": "claude-sonnet-4.5",
     },
-    "model_parameters": []
+    "model_parameters": [],
   },
   "git_panel": {
-    "dock": "right"
+    "dock": "right",
   },
   "buffer_font_family": "JetBrainsMono Nerd Font",
   "terminal": {
     "copy_on_select": false,
-    "font_family": "JetBrainsMono Nerd Font"
+    "font_family": "JetBrainsMono Nerd Font",
   },
   "project_panel": {
-    "dock": "right"
+    "dock": "right",
   },
   "base_keymap": "JetBrains",
   "icon_theme": "Material Icon Theme",
@@ -55,7 +55,7 @@
   "theme": {
     "mode": "dark",
     "light": "One Light",
-    "dark": "One Dark Pro"
+    "dark": "One Dark Pro",
   },
   "auto_install_extensions": {
     // bat $env:LOCALAPPDATA\zed\extensions\index.json | rg "id" -w
@@ -65,6 +65,6 @@
     "powershell": true,
     "sql": true,
     "svelte": true,
-    "toml": true
-  }
+    "toml": true,
+  },
 }
