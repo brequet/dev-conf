@@ -173,3 +173,10 @@ function fp
     param($n)
     fd $n | ForEach-Object { bat $_ }
 }
+
+function wc-line ($file)
+{
+    (Get-Content $file | Measure-Object -Line).Lines
+}
+
+Set-Alias wc wc-line
