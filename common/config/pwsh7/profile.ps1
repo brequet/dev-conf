@@ -31,7 +31,7 @@ function scratch
 }
 
 function mpv
-{ mpvnet.exe $args 
+{ mpvnet.exe $args
 }
 
 function sfx
@@ -166,3 +166,17 @@ function nb
 }
 
 Set-Alias -Name oc -Value opencode
+
+# find & print
+function fp
+{
+    param($n)
+    fd $n | ForEach-Object { bat $_ }
+}
+
+function wc-line ($file)
+{
+    (Get-Content $file | Measure-Object -Line).Lines
+}
+
+Set-Alias wc wc-line
